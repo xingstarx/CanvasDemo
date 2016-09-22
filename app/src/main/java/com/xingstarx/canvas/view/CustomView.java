@@ -1,6 +1,7 @@
 package com.xingstarx.canvas.view;
 
 import android.animation.Animator;
+import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -31,6 +32,8 @@ public class CustomView extends View {
     private float defaultDegrees = 60;
     private Paint paint;
     private List<Animator> animatorList = new ArrayList<>();
+    private static final int DEFAULT_DURATION = 2000;
+    private int lineLength;
 
     public CustomView(Context context) {
         super(context);
@@ -60,23 +63,36 @@ public class CustomView extends View {
         paint.setAntiAlias(true);
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setStrokeWidth(5 * 8);
+
+        lineLength = baseLine;
     }
 
     public void start() {
-        ValueAnimator lcAnimator = ValueAnimator.ofFloat(defaultDegrees + 0, defaultDegrees + 360);
-        lcAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+        ValueAnimator lineChangeDegreesAnimator = ValueAnimator.ofFloat(defaultDegrees + 0, defaultDegrees + 360);
+        lineChangeDegreesAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 defaultDegrees = (float) animation.getAnimatedValue();
                 Log.e(TAG, "onAnimationUpdate defaultDegrees == " + defaultDegrees);
+            }
+        });
+
+        ValueAnimator lineChangeLengthAnimator = ValueAnimator.ofInt(baseLine, -baseLine);
+        lineChangeLengthAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                lineLength = (int) animation.getAnimatedValue();
                 invalidate();
             }
         });
 
-        lcAnimator.setDuration(500);
-        lcAnimator.setInterpolator(new LinearInterpolator());
-        lcAnimator.start();
-        animatorList.add(lcAnimator);
+        AnimatorSet animatorSet = new AnimatorSet();
+
+        animatorSet.playTogether(lineChangeDegreesAnimator, lineChangeLengthAnimator);
+        animatorSet.setDuration(DEFAULT_DURATION);
+        animatorSet.setInterpolator(new LinearInterpolator());
+        animatorSet.start();
+        animatorList.add(animatorSet);
     }
 
     public void stop() {
@@ -92,7 +108,7 @@ public class CustomView extends View {
         super.onDraw(canvas);
         for (int i = 0; i < colors.length; i++) {
             paint.setColor(colors[i]);
-            drawLine(canvas, mWidth / 2 - baseLine / 2.2f, mHeight / 2 - baseLine, mWidth / 2 - baseLine / 2.2f, mHeight / 2 + baseLine, paint, defaultDegrees + (90 * i));
+            drawLine(canvas, mWidth / 2 - baseLine / 2.2f, mHeight / 2 - lineLength, mWidth / 2 - baseLine / 2.2f, mHeight / 2 + baseLine, paint, defaultDegrees + (90 * i));
         }
     }
 
