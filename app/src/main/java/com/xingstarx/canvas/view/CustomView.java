@@ -1,5 +1,7 @@
 package com.xingstarx.canvas.view;
 
+import android.animation.Animator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -7,13 +9,19 @@ import android.graphics.Paint;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by xiongxingxing on 16/9/22.
  */
 
 public class CustomView extends View {
+    private static final String TAG = "CustomView";
     private int mWidth;
     private int mHeight;
     private
@@ -22,6 +30,7 @@ public class CustomView extends View {
     private int baseLine = dp2px(getContext(), 80);
     private float defaultDegrees = 60;
     private Paint paint;
+    private List<Animator> animatorList = new ArrayList<>();
 
     public CustomView(Context context) {
         super(context);
@@ -51,6 +60,31 @@ public class CustomView extends View {
         paint.setAntiAlias(true);
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setStrokeWidth(5 * 8);
+    }
+
+    public void start() {
+        ValueAnimator lcAnimator = ValueAnimator.ofFloat(defaultDegrees + 0, defaultDegrees + 360);
+        lcAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                defaultDegrees = (float) animation.getAnimatedValue();
+                Log.e(TAG, "onAnimationUpdate defaultDegrees == " + defaultDegrees);
+                invalidate();
+            }
+        });
+
+        lcAnimator.setDuration(500);
+        lcAnimator.setInterpolator(new LinearInterpolator());
+        lcAnimator.start();
+        animatorList.add(lcAnimator);
+    }
+
+    public void stop() {
+        for(int i = 0; i < animatorList.size(); i++) {
+            Animator animator = animatorList.get(i);
+            animator.cancel();
+        }
+        animatorList.clear();
     }
 
     @Override
