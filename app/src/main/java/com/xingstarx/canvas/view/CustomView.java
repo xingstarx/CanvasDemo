@@ -218,7 +218,7 @@ public class CustomView extends View {
     }
 
     private void startIncreaseLineLength() {
-        ValueAnimator lineChangeLengthAnimator = ValueAnimator.ofInt(-baseLineLength, baseLineLength);
+        ValueAnimator lineChangeLengthAnimator = ValueAnimator.ofInt(-(baseLineLength - dp2px(getContext(), 2)), baseLineLength);
         lineChangeLengthAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
