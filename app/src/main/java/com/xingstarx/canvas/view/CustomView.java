@@ -66,7 +66,6 @@ public class CustomView extends View {
         paint = new Paint();
         paint.setColor(Color.GREEN);
         paint.setStyle(Paint.Style.FILL);
-
         paint.setAntiAlias(true);
         paint.setStrokeCap(Paint.Cap.ROUND);
         circleRadius = baseLineLength / 5;
@@ -77,6 +76,13 @@ public class CustomView extends View {
     }
 
     public void setDynamicLineLength(float scale) {
+        clearAnimator();
+        baseLineLength = (int) ((maxLineLength - minLineLength) * scale + minLineLength);
+        initView();
+        invalidate();
+    }
+
+    private void clearAnimator() {
         for (int i = 0; i< animatorList.size(); i++) {
             Animator animator = animatorList.get(i);
             if (animator != null && animator.isRunning()) {
@@ -84,12 +90,10 @@ public class CustomView extends View {
             }
         }
         animatorList.clear();
-        baseLineLength = (int) ((maxLineLength - minLineLength) * scale + minLineLength);
-        initView();
-        invalidate();
     }
 
     public void start() {
+        clearAnimator();
         ValueAnimator lineChangeDegreesAnimator = ValueAnimator.ofFloat(canvasAngle + 0, canvasAngle + 360);
         lineChangeDegreesAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -175,11 +179,7 @@ public class CustomView extends View {
 
 
     public void stop() {
-        for (int i = 0; i < animatorList.size(); i++) {
-            Animator animator = animatorList.get(i);
-            animator.cancel();
-        }
-        animatorList.clear();
+        clearAnimator();
         initView();
         invalidate();
     }
