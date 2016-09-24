@@ -26,13 +26,11 @@ public class CustomView extends View {
     private static final int DEFAULT_DURATION = 2000;
     private final int minLineLength = dp2px(getContext(), 40);
     private final int maxLineLength = dp2px(getContext(), 120);
+    private final float DEFAULT_CANVAS_ANGLE = 60;
     private int mWidth;
     private int mHeight;
-    private
-    @ColorInt
-    int[] colors = new int[]{Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN};
+    private @ColorInt int[] colors = new int[]{Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN};
     private int baseLineLength = minLineLength;
-    private final float DEFAULT_CANVAS_ANGLE = 60;
     private float canvasAngle;
     private Paint paint;
     private List<Animator> animatorList = new ArrayList<>();
@@ -90,7 +88,7 @@ public class CustomView extends View {
     }
 
     private void clearAnimator() {
-        for (int i = 0; i< animatorList.size(); i++) {
+        for (int i = 0; i < animatorList.size(); i++) {
             Animator animator = animatorList.get(i);
             if (animator != null && animator.isRunning()) {
                 animatorList.get(i).cancel();
@@ -159,7 +157,7 @@ public class CustomView extends View {
     }
 
     private void startRotationCircleAndScaleLineLength() {
-        ValueAnimator circleChangeDegreesAnimator = ValueAnimator.ofFloat(canvasAngle + 0, canvasAngle + 90, canvasAngle + 180);
+        ValueAnimator circleChangeDegreesAnimator = ValueAnimator.ofFloat(canvasAngle + 0, canvasAngle + 180);
         circleChangeDegreesAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -180,9 +178,32 @@ public class CustomView extends View {
         animatorSet.setDuration(DEFAULT_DURATION);
         animatorSet.setInterpolator(new LinearInterpolator());
         animatorSet.playTogether(circleChangeDegreesAnimator, lineChangeLengthAnimator);
+        animatorSet.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                step++;
+                startIncreaseLineLength();
+            }
+        });
         animatorList.add(animatorSet);
         animatorSet.start();
     }
+
+    private void startIncreaseLineLength() {
+        ValueAnimator lineChangeLengthAnimator = ValueAnimator.ofInt(-baseLineLength, baseLineLength);
+        lineChangeLengthAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                dynamicLineLength = (int) animation.getAnimatedValue();
+                invalidate();
+            }
+        });
+        lineChangeLengthAnimator.setDuration(DEFAULT_DURATION);
+        lineChangeLengthAnimator.setInterpolator(new LinearInterpolator());
+        lineChangeLengthAnimator.start();
+        animatorList.add(lineChangeLengthAnimator);
+    }
+
 
 
     public void stop() {
@@ -213,6 +234,12 @@ public class CustomView extends View {
                     drawCircle(canvas, mWidth / 2 - baseLineLength / 2.2f, mHeight / 2 + circleY, circleRadius, paint, canvasAngle + (90 * i));
                 }
                 break;
+            case 3:
+                for (int i = 0; i < colors.length; i++) {
+                    paint.setColor(colors[i]);
+                    drawLine(canvas, mWidth / 2 - baseLineLength / 2.2f, mHeight / 2 - dynamicLineLength, mWidth / 2 - baseLineLength / 2.2f, mHeight / 2 + baseLineLength, paint, canvasAngle + (90 * i));
+                }
+            break;
         }
     }
 
