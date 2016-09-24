@@ -24,6 +24,8 @@ import java.util.List;
 public class CustomView extends View {
     private static final String TAG = "CustomView";
     private static final int DEFAULT_DURATION = 2000;
+    private static final int ANIMATION_STOP = 0;
+    private static final int ANIMATION_START = 1;
     private final int minLineLength = dp2px(getContext(), 40);
     private final int maxLineLength = dp2px(getContext(), 120);
     private final float DEFAULT_CANVAS_ANGLE = 60;
@@ -38,6 +40,7 @@ public class CustomView extends View {
     private int step;
     private float circleRadius;
     private float circleY;
+    private int playState;
 
     public CustomView(Context context) {
         super(context);
@@ -62,6 +65,7 @@ public class CustomView extends View {
     private void initView() {
         initPaint();
         init();
+        playState = ANIMATION_STOP;
     }
 
     private void init() {
@@ -81,7 +85,10 @@ public class CustomView extends View {
     }
 
     public void setDynamicLineLength(float scale) {
-        clearAnimator();
+        if (playState == ANIMATION_START) {
+            playState = ANIMATION_STOP;
+            clearAnimator();
+        }
         baseLineLength = (int) ((maxLineLength - minLineLength) * scale + minLineLength);
         init();
         invalidate();
@@ -91,15 +98,31 @@ public class CustomView extends View {
         for (int i = 0; i < animatorList.size(); i++) {
             Animator animator = animatorList.get(i);
             if (animator != null && animator.isRunning()) {
-                animatorList.get(i).cancel();
+                animator.cancel();
             }
         }
         animatorList.clear();
     }
 
     public void start() {
-        clearAnimator();
-        init();
+        if (playState == ANIMATION_STOP) {
+            playState = ANIMATION_START;
+            animatorList.clear();
+            init();
+            startRotationAndDecreaseLineLength();
+        }
+    }
+
+    public void stop() {
+        if (playState == ANIMATION_START) {
+            playState = ANIMATION_STOP;
+            clearAnimator();
+            init();
+            invalidate();
+        }
+    }
+
+    private void startRotationAndDecreaseLineLength() {
         ValueAnimator lineChangeDegreesAnimator = ValueAnimator.ofFloat(canvasAngle + 0, canvasAngle + 360);
         lineChangeDegreesAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -125,14 +148,15 @@ public class CustomView extends View {
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                step++;
-                startRotationCircle();
+                if (playState == ANIMATION_START) {
+                    step++;
+                    startRotationCircle();
+                }
             }
         });
         animatorSet.start();
         animatorList.add(animatorSet);
     }
-
 
     private void startRotationCircle() {
         ValueAnimator circleChangeDegreesAnimator = ValueAnimator.ofFloat(canvasAngle + 0, canvasAngle + 180);
@@ -148,8 +172,10 @@ public class CustomView extends View {
         circleChangeDegreesAnimator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                step++;
-                startRotationCircleAndScaleLineLength();
+                if (playState == ANIMATION_START) {
+                    step++;
+                    startRotationCircleAndScaleLineLength();
+                }
             }
         });
         circleChangeDegreesAnimator.start();
@@ -181,8 +207,10 @@ public class CustomView extends View {
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                step++;
-                startIncreaseLineLength();
+                if (playState == ANIMATION_START) {
+                    step++;
+                    startIncreaseLineLength();
+                }
             }
         });
         animatorList.add(animatorSet);
@@ -200,22 +228,23 @@ public class CustomView extends View {
         });
         lineChangeLengthAnimator.setDuration(DEFAULT_DURATION);
         lineChangeLengthAnimator.setInterpolator(new LinearInterpolator());
+        lineChangeLengthAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (playState == ANIMATION_START) {
+                    step++;
+                    startRotationAndDecreaseLineLength();
+                }
+            }
+        });
         lineChangeLengthAnimator.start();
         animatorList.add(lineChangeLengthAnimator);
-    }
-
-
-
-    public void stop() {
-        clearAnimator();
-        init();
-        invalidate();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        switch (step) {
+        switch (step % 4) {
             case 0:
                 for (int i = 0; i < colors.length; i++) {
                     paint.setColor(colors[i]);
@@ -239,7 +268,9 @@ public class CustomView extends View {
                     paint.setColor(colors[i]);
                     drawLine(canvas, mWidth / 2 - baseLineLength / 2.2f, mHeight / 2 - dynamicLineLength, mWidth / 2 - baseLineLength / 2.2f, mHeight / 2 + baseLineLength, paint, canvasAngle + (90 * i));
                 }
-            break;
+                break;
+            default:
+                break;
         }
     }
 
