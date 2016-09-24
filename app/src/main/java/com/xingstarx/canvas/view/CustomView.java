@@ -29,14 +29,16 @@ public class CustomView extends View {
     private
     @ColorInt
     int[] colors = new int[]{Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN};
-    private int baseLine = dp2px(getContext(), 80);
+    private final int minLine = dp2px(getContext(), 40);
+    private final int maxLine = dp2px(getContext(), 120);
+    private int baseLine = minLine;
     private float defaultDegrees = 60;
     private Paint paint;
     private List<Animator> animatorList = new ArrayList<>();
     private static final int DEFAULT_DURATION = 2000;
     private int lineLength;
     private int step = 0;
-    private float radius = 5 * 8;
+    private float circleRadius;
 
     public CustomView(Context context) {
         super(context);
@@ -65,9 +67,15 @@ public class CustomView extends View {
 
         paint.setAntiAlias(true);
         paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setStrokeWidth(radius);
-
+        circleRadius = baseLine / 5;
+        paint.setStrokeWidth(circleRadius * 2);
         lineLength = baseLine;
+    }
+
+    public void setLineLength(float scale) {
+        baseLine = (int) ((maxLine - minLine) * scale + minLine);
+        initView();
+        invalidate();
     }
 
     public void start() {
@@ -144,7 +152,7 @@ public class CustomView extends View {
             case 1:
                 for (int i = 0; i < colors.length; i++) {
                     paint.setColor(colors[i]);
-                    drawCircle(canvas, mWidth / 2 - baseLine / 2.2f, mHeight / 2 + baseLine, radius, paint, defaultDegrees + (90 * i));
+                    drawCircle(canvas, mWidth / 2 - baseLine / 2.2f, mHeight / 2 + baseLine, circleRadius, paint, defaultDegrees + (90 * i));
                 }
         }
     }
