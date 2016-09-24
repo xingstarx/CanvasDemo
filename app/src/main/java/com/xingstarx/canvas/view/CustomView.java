@@ -23,7 +23,8 @@ import java.util.List;
 
 public class CustomView extends View {
     private static final String TAG = "CustomView";
-    private static final int DEFAULT_DURATION = 2000;
+    private static final int MAX_DURATION = 5000;
+    private static final int MIN_DURATION = 1000;
     private static final int ANIMATION_STOP = 0;
     private static final int ANIMATION_START = 1;
     private final int minLineLength = dp2px(getContext(), 40);
@@ -41,6 +42,7 @@ public class CustomView extends View {
     private float circleRadius;
     private float circleY;
     private int playState;
+    private int duration;
 
     public CustomView(Context context) {
         super(context);
@@ -66,6 +68,7 @@ public class CustomView extends View {
         initPaint();
         init();
         playState = ANIMATION_STOP;
+        duration = MIN_DURATION;
     }
 
     private void init() {
@@ -90,6 +93,16 @@ public class CustomView extends View {
             clearAnimator();
         }
         baseLineLength = (int) ((maxLineLength - minLineLength) * scale + minLineLength);
+        init();
+        invalidate();
+    }
+
+    public void setDuration(float scale) {
+        if (playState == ANIMATION_START) {
+            playState = ANIMATION_STOP;
+            clearAnimator();
+        }
+        duration = (int) ((MAX_DURATION - MIN_DURATION) * scale + MIN_DURATION);
         init();
         invalidate();
     }
@@ -143,7 +156,7 @@ public class CustomView extends View {
         AnimatorSet animatorSet = new AnimatorSet();
 
         animatorSet.playTogether(lineChangeDegreesAnimator, lineChangeLengthAnimator);
-        animatorSet.setDuration(DEFAULT_DURATION);
+        animatorSet.setDuration(duration);
         animatorSet.setInterpolator(new LinearInterpolator());
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
@@ -167,7 +180,7 @@ public class CustomView extends View {
                 invalidate();
             }
         });
-        circleChangeDegreesAnimator.setDuration(DEFAULT_DURATION);
+        circleChangeDegreesAnimator.setDuration(duration);
         circleChangeDegreesAnimator.setInterpolator(new LinearInterpolator());
         circleChangeDegreesAnimator.addListener(new AnimatorListenerAdapter() {
             @Override
@@ -201,7 +214,7 @@ public class CustomView extends View {
         });
 
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.setDuration(DEFAULT_DURATION);
+        animatorSet.setDuration(duration);
         animatorSet.setInterpolator(new LinearInterpolator());
         animatorSet.playTogether(circleChangeDegreesAnimator, lineChangeLengthAnimator);
         animatorSet.addListener(new AnimatorListenerAdapter() {
@@ -226,7 +239,7 @@ public class CustomView extends View {
                 invalidate();
             }
         });
-        lineChangeLengthAnimator.setDuration(DEFAULT_DURATION);
+        lineChangeLengthAnimator.setDuration(duration);
         lineChangeLengthAnimator.setInterpolator(new LinearInterpolator());
         lineChangeLengthAnimator.addListener(new AnimatorListenerAdapter() {
             @Override

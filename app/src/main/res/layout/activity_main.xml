@@ -12,44 +12,70 @@
 
     <Button
         android:id="@+id/start"
-        android:text="Start"
-        android:layout_alignParentLeft="true"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:text="Start" />
 
     <Button
         android:id="@+id/stop"
-        android:text="Stop"
-        android:layout_alignParentRight="true"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="Stop" />
 
 
     <com.xingstarx.canvas.view.CustomView
         android:id="@+id/loading_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        />
+        android:layout_centerInParent="true" />
 
     <LinearLayout
-        android:layout_alignParentBottom="true"
+        android:id="@+id/duration_container"
         android:layout_width="match_parent"
-        android:orientation="horizontal"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:orientation="horizontal">
 
         <TextView
-            android:text="Size"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:text="duration" />
+
         <SeekBar
-            android:layout_marginLeft="4dp"
-            android:id="@+id/size"
-            android:progress="0"
-            android:max="100"
+            android:id="@+id/duration"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:max="100"
+            android:progress="0" />
 
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_above="@id/duration_container"
+        android:layout_marginBottom="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:text="Size" />
+
+        <SeekBar
+            android:id="@+id/size"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:max="100"
+            android:progress="0" />
+
+    </LinearLayout>
+
 
 </RelativeLayout>

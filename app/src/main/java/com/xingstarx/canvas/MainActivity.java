@@ -9,13 +9,11 @@ import android.widget.SeekBar;
 import com.xingstarx.canvas.view.CustomView;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-
-
     private Button mStartView;
     private Button mStopView;
     private CustomView mCustomView;
     private SeekBar mSizeSeekBar;
-
+    private SeekBar mDurationSeekBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,10 +24,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mStopView = (Button) findViewById(R.id.stop);
         mCustomView = (CustomView) findViewById(R.id.loading_view);
         mSizeSeekBar = (SeekBar) findViewById(R.id.size);
+        mDurationSeekBar = (SeekBar) findViewById(R.id.duration);
         mSizeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 mCustomView.setDynamicLineLength(progress / 100f);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        mDurationSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                mCustomView.setDuration(progress / 100f);
             }
 
             @Override
