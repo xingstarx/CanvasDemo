@@ -11,7 +11,6 @@ import android.graphics.Paint;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 
@@ -33,7 +32,7 @@ public class CustomView extends View {
     @ColorInt
     int[] colors = new int[]{Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN};
     private int baseLineLength = minLineLength;
-    private final float DEFAULT_CANVAS_ANGLE = 0;
+    private final float DEFAULT_CANVAS_ANGLE = 60;
     private float canvasAngle;
     private Paint paint;
     private List<Animator> animatorList = new ArrayList<>();
@@ -63,11 +62,11 @@ public class CustomView extends View {
     }
 
     private void initView() {
-        paint = new Paint();
-        paint.setColor(Color.GREEN);
-        paint.setStyle(Paint.Style.FILL);
-        paint.setAntiAlias(true);
-        paint.setStrokeCap(Paint.Cap.ROUND);
+        initPaint();
+        init();
+    }
+
+    private void init() {
         circleRadius = baseLineLength / 5;
         paint.setStrokeWidth(circleRadius * 2);
         dynamicLineLength = baseLineLength;
@@ -75,10 +74,18 @@ public class CustomView extends View {
         canvasAngle = DEFAULT_CANVAS_ANGLE;
     }
 
+    private void initPaint() {
+        paint = new Paint();
+        paint.setColor(Color.GREEN);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setAntiAlias(true);
+        paint.setStrokeCap(Paint.Cap.ROUND);
+    }
+
     public void setDynamicLineLength(float scale) {
         clearAnimator();
         baseLineLength = (int) ((maxLineLength - minLineLength) * scale + minLineLength);
-        initView();
+        init();
         invalidate();
     }
 
@@ -94,12 +101,12 @@ public class CustomView extends View {
 
     public void start() {
         clearAnimator();
+        init();
         ValueAnimator lineChangeDegreesAnimator = ValueAnimator.ofFloat(canvasAngle + 0, canvasAngle + 360);
         lineChangeDegreesAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 canvasAngle = (float) animation.getAnimatedValue();
-                Log.e(TAG, "onAnimationUpdate canvasAngle == " + canvasAngle);
             }
         });
 
@@ -180,7 +187,7 @@ public class CustomView extends View {
 
     public void stop() {
         clearAnimator();
-        initView();
+        init();
         invalidate();
     }
 
